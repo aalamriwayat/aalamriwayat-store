@@ -31,12 +31,42 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
-const books=[
+let books=[
 {id:1,title:'لغز في آخر الليل',author:'إصدار تجريبي',category:'غموض وتشويق',price:35,color:'#642039',accent:'#d7b77e',symbol:'✦',desc:'حين يهدأ كل شيء ويخيّم الصمت، تبدأ أسئلة لم يكن أحد مستعداً لها. رواية غموض وتشويق تقود القارئ بين التفاصيل الصغيرة والاحتمالات المتشابكة، حتى تتضح الصورة صفحة بعد صفحة.'},
 {id:2,title:'ظلال على النافذة',author:'إصدار تجريبي',category:'دراما',price:42,color:'#3f4c45',accent:'#e4c99b',symbol:'❧',desc:'حكاية عن الذكريات والاختيارات التي تغيّر مسار الحياة. بين ما نحتفظ به لأنفسنا وما نجرؤ على قوله، تتكشف حكاية إنسانية عن الأمل والبدايات الجديدة.'},
 {id:3,title:'رسائل لم تصل',author:'إصدار تجريبي',category:'اجتماعي',price:30,color:'#8a4b45',accent:'#f0d7b5',symbol:'✉',desc:'رسائل بقيت طويلاً في الأدراج، تحمل حكايات أشخاص جمعتهم الصدفة وفرّقتهم الظروف. رواية اجتماعية عن التواصل والقرارات الصغيرة التي تصنع فروقاً كبيرة.'},
 {id:4,title:'قبل أن يغيب القمر',author:'إصدار تجريبي',category:'غموض وتشويق',price:39,color:'#283c5a',accent:'#e4c98c',symbol:'☾',desc:'في بلدة هادئة، تثير واقعة غامضة سلسلة من الأسئلة. كل شخصية تخفي جانباً من الحكاية، وعلى القارئ أن يجمع الخيوط ويقرأ ما بين السطور.'}
 ];
+  async function loadBooksFromSupabase(){
+  try {
+    const { data, error } = await supabaseClient
+      .from('books')
+      .select('id,title,author,description,price,image_url,category,stock,active')
+      .eq('active', true)
+      .order('id', { ascending: true });
+
+    if (error) throw error;
+
+    if (data && data.length) {
+      const colors = ['#642039','#3f4c45','#8a4b45','#283c5a'];
+
+      books = data.map((b, i) => ({
+        ...b,
+        color: colors[i % colors.length],
+        accent: '#d7b77e',
+        symbol: '✦',
+        desc: b.description || '',
+        author: b.author || 'غير محدد'
+      }));
+
+      renderBooks();
+      renderCart();
+      loadBooksFromSupabase();
+    }
+  } catch (error) {
+    console.error('خطأ تحميل الكتب:', error.message);
+  }
+}
 let cart={};let activeBook=null;let detailQty=1;let toastTimer;
 const $=id=>document.getElementById(id);const money=n=>`${n} درهم`;
 function coverMarkup(b){return `<small>عالم الروايات</small><span>${b.symbol}</span><b>${b.title}</b><small>حكاية تستحق أن تُعاش</small>`}

@@ -94,7 +94,9 @@
       <p><input id="bookStock" type="number" min="0" step="1"
         placeholder="الكمية في المخزون" required></p>
       <p><input id="bookCategory" placeholder="الصنف"></p>
-      <p><input id="bookImage" type="url" placeholder="رابط صورة الرواية"></p>
+      <p><label for="bookImageFile">صورة الرواية:</label></p>
+      <p><input id="bookImageFile" type="file" accept="image/*"></p>
+      <input id="bookImage" type="hidden">
       <p><textarea id="bookDescription" placeholder="ملخص الرواية"
         rows="4"></textarea></p>
 
@@ -414,7 +416,37 @@ el("bookForm").addEventListener("submit", async event => {
   saveBtn.disabled = true;
   el("booksMsg").textContent = "جارٍ حفظ الرواية...";
 
-  try {
+  try { 
+    const imageFile = el("bookImageFile").files[0];
+
+if (imageFile) {
+  if (!imageFile.type.startsWith("image/") ||
+      imageFile.size > 5 * 1024 * 1024) {
+    el("booksMsg").textContent =
+      "اختار صورة صالحة وحجمها أقل من 5 ميغابايت.";
+    return;
+  }
+
+  const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const path = `${Date.now()}-${safeName}`;
+
+  const { error: uploadError } = await db.storage
+    .from("book-images")
+    .upload(path, imageFile, {
+      contentType: imageFile.type,
+      upsert: false
+    });
+
+  if (uploadError) {
+    el("booksMsg").textContent =
+      "تعذر رفع الصورة: " + uploadError.message;
+    return;
+  }
+
+  book.image_url = db.storage
+    .from("book-images")
+    .getPublicUrl(path).data.publicUrl;
+}
     const result = id
       ? await db.from("books").update(book).eq("id", Number(id))
       : await db.from("books").insert({ ...book, active: true });

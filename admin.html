@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لوحة تحكم عالم الروايات</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f5eee8;color:#392535;margin:0;padding:20px}
+    main{max-width:950px;margin:auto}
+    section,.order{background:white;padding:18px;border-radius:14px;margin:14px 0}
+    input,button{padding:12px;margin:5px 0;border-radius:8px;border:1px solid #d8c5d0}
+    input{width: min(100%, 350px);box-sizing:border-box}
+    button{cursor:pointer;background:#592b50;color:white;border:0}
+    button:disabled{opacity:.5}
+    .reject{background:#8c3434}.muted{color:#776977}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere}
+  </style>
+</head>
+<body>
+<main>
+  <h1>متجر عالم الروايات</h1>
+  <p class="muted">لوحة تحكم المسؤول</p>
+
+  <section id="login">
+    <h2>تسجيل الدخول</h2>
+    <input id="email" type="email" placeholder="البريد الإلكتروني" autocomplete="username">
+    <br>
+    <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+    <br>
+    <button id="loginBtn" onclick="login()">دخول</button>
+    <p id="loginMsg"></p>
+  </section>
+
+  <section id="dashboard" hidden>
+    <div class="row">
+      <h2>الطلبات</h2>
+      <button onclick="loadOrders()">تحديث الطلبات</button>
+      <button onclick="logout()">تسجيل الخروج</button>
+    </div>
+    <p id="msg"></p>
+    <div id="orders"></div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://scngjvksfjrkfouizizt.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_Vc3-3epAb80iIvGKNRdYag_1ugI1T2g";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const el = id => document.getElementById(id);
+
+async function login() {
+  el("loginMsg").textContent = "جارٍ تسجيل الدخول...";
+  const { error } = await db.auth.signInWithPassword({
+    email: el("email").value.trim(),
+    password: el("password").value
+  });
+  if (error) {
+    el("loginMsg").textContent = "تعذر الدخول: " + error.message;
+    return;
+  }
+  await checkSession();
+}
+
+async function logout() {
+  await db.auth.signOut();
+  el("dashboard").hidden = true;
+  el("login").hidden = false;
+  el("orders").innerHTML = "";
+}
+
+async function checkSession() {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    el("login").hidden = false;
+    el("dashboard").hidden = true;
+    return;
+  }
+  const { data, error } = await db.rpc("is_admin");
+  if (error || data !== true) {
+    el("loginMsg").textContent = "هذا الحساب غير مخوّل للوصول إلى لوحة التحكم.";
+    await db.auth.signOut();
+    return;
+  }
+  el("login").hidden = true;
+  el("dashboard").hidden = false;
+  await loadOrders();
+}
+
+async function loadOrders() {
+  el("msg").textContent = "جارٍ تحميل الطلبات...";
+  const { data, error } = await db
+    .from("orders")
+    .select("id,customer_name,phone,city,address,total,status,created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    el("msg").textContent = "تعذر تحميل الطلبات: " + error.message;
+    return;
+  }
+
+  el("msg").textContent = data.length ? `عدد الطلبات: ${data.length}` : "ما كاين حتى طلب دابا.";
+  el("orders").innerHTML = "";
+
+  for (const order of data) {
+    const card = document.createElement("article");
+    card.className = "order";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "طلب: " + order.id;
+    card.appendChild(heading);
+
+    const details = document.createElement("pre");
+    details.textContent =
+      `الزبون: ${order.customer_name}\n` +
+      `الهاتف: ${order.phone}\n` +
+      `المدينة: ${order.city}\n` +
+      `العنوان: ${order.address}\n` +
+      `المجموع: ${order.total} درهم\n` +
+      `الحالة: ${order.status}\n` +
+      `التاريخ: ${new Date(order.created_at).toLocaleString("ar-MA")}`;
+    card.appendChild(details);
+
+    const itemsResult = await db
+      .from("order_items")
+      .select("book_title,price,quantity")
+      .eq("order_id", order.id);
+
+    if (itemsResult.error) {
+      const err = document.createElement("p");
+      err.textContent = "تعذر تحميل تفاصيل الكتب.";
+      card.appendChild(err);
+    } else {
+      const items = document.createElement("p");
+      items.textContent = "الكتب: " + itemsResult.data.map(
+        item => `${item.book_title} × ${item.quantity} (${item.price} درهم)`
+      ).join("، ");
+      card.appendChild(items);
+    }
+
+    if (order.status === "pending") {
+      const actions = document.createElement("div");
+      actions.className = "row";
+      for (const [label, status, cls] of [
+        ["قبول الطلب", "accepted", ""],
+        ["رفض الطلب", "rejected", "reject"]
+      ]) {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        if (cls) btn.className = cls;
+        btn.onclick = () => updateOrder(order.id, status, btn);
+        actions.appendChild(btn);
+      }
+      card.appendChild(actions);
+    }
+
+    el("orders").appendChild(card);
+  }
+}
+
+async function updateOrder(id, status, btn) {
+  const question = status === "accepted"
+    ? "واش متأكد بغيتي تقبل الطلب؟ غادي ينقص المخزون."
+    : "واش متأكد بغيتي ترفض الطلب؟";
+  if (!confirm(question)) return;
+
+  btn.disabled = true;
+  el("msg").textContent = "جارٍ تحديث الطلب...";
+  const { error } = await db.rpc("admin_update_order", {
+    p_order_id: id,
+    p_new_status: status
+  });
+
+  if (error) {
+    el("msg").textContent = "تعذر تحديث الطلب: " + error.message;
+    btn.disabled = false;
+    return;
+  }
+
+  el("msg").textContent = "تم تحديث الطلب.";
+  await loadOrders();
+}
+
+db.auth.onAuthStateChange(() => {
+  setTimeout(checkSession, 0);
+});
+
+checkSession();
+</script>
+</body>
+</html>

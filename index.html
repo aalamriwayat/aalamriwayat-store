@@ -300,7 +300,20 @@ footer{background:var(--wine2);color:#f8ebdf;padding:32px 0 20px}
       <button class="close" id="closeCart" aria-label="إغلاق" style="position:static">×</button>
     </div>
     <div id="cartItems"></div>
-    <div class="total"><span>مجموع الكتب</span><span id="cartTotal">0 درهم</span></div>
+    <div class="total">
+  <span>مجموع الكتب</span>
+  <span id="cartTotal">0 درهم</span>
+</div>
+
+<div class="total">
+  <span>ثمن التوصيل</span>
+  <span>35 درهم</span>
+</div>
+
+<div class="total">
+  <span>المجموع النهائي</span>
+  <span id="finalTotal">35 درهم</span>
+</div>
     <div class="checkoutFields">
       <h3>معلومات التوصيل</h3>
       <p class="hint">راجع اختياراتك وأدخل معلومات التوصيل لإرسال الطلب.</p>
@@ -465,6 +478,7 @@ function renderCart(){
   }).join(''):'<div class="empty">السلة ما زال خاوية. اختار رواية تعجبك أولاً.</div>';
   const total=ids.reduce((s,id)=>s+books.find(b=>b.id===Number(id)).price*cart[id],0);
   $('cartTotal').textContent=money(total);
+  $('finalTotal').textContent=money(total + 35);
 }
 
 function openCart(){

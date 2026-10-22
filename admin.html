@@ -324,7 +324,7 @@ async function loadBooks() {
       `الكاتب: ${book.author || "غير محدد"} | ` +
       `الثمن: ${book.price} درهم | ` +
       `المخزون: ${book.stock} | ` +
-      `الحالة: ${book.active ? "معروضة" : "مخفية"}`;
+      `التصنيف: ${book.category || "غير محدد"}`;
     card.appendChild(info);
 
     const edit = document.createElement("button");
@@ -344,35 +344,6 @@ async function loadBooks() {
     };
     card.appendChild(edit);
 
-    const toggle = document.createElement("button");
-    toggle.className = "reject";
-    toggle.textContent = book.active ? "إخفاء الرواية" : "إعادة عرضها";
-
-    toggle.onclick = async () => {
-      if (!confirm("واش متأكد بغيتي تغيّر حالة عرض هاد الرواية؟")) {
-        return;
-      }
-
-      toggle.disabled = true;
-
-      const { error } = await db
-        .from("books")
-        .update({ active: !book.active })
-        .eq("id", book.id);
-
-      toggle.disabled = false;
-
-      if (error) {
-        el("booksMsg").textContent =
-          "تعذر تحديث الرواية: " + error.message;
-        return;
-      }
-
-      el("booksMsg").textContent = "تحدّثات حالة الرواية بنجاح.";
-      await loadBooks();
-    };
-
-    card.appendChild(toggle);
     el("booksList").appendChild(card);
   }
 }
@@ -449,7 +420,7 @@ if (imageFile) {
 }
     const result = id
       ? await db.from("books").update(book).eq("id", Number(id))
-      : await db.from("books").insert({ ...book, active: true });
+      : await db.from("books").insert(book);
 
     if (result.error) {
       el("booksMsg").textContent =

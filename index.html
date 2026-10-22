@@ -347,37 +347,43 @@ let books=[
 {id:4,title:'قبل أن يغيب القمر',author:'إصدار تجريبي',category:'غموض وتشويق',price:39,color:'#283c5a',accent:'#e4c98c',symbol:'☾',desc:'في بلدة هادئة، تثير واقعة غامضة سلسلة من الأسئلة. كل شخصية تخفي جانباً من الحكاية، وعلى القارئ أن يجمع الخيوط ويقرأ ما بين السطور.'}
 ];
 
-async function loadBooksFromSupabase(){
+
+async function loadBooksFromSupabase() {
+  const grid = $('bookGrid');
+
   try {
     const { data, error } = await supabaseClient
       .from('books')
-      .select('id,title,author,description,price,image_url,category,stock,active')
+      .select('id,title,author,description,price,category,stock,cover_url,image_url')
       .order('id', { ascending: true });
 
     if (error) throw error;
 
-    if (Array.isArray(data) && data.length) {
-      const colors = ['#642039','#3f4c45','#8a4b45','#283c5a'];
-      books = data.map((b, i) => ({
-        id: Number(b.id),
-        title: b.title,
-        author: b.author || 'غير محدد',
-        category: b.category || 'روايات',
-        price: Number(b.price) || 0,
-        color: colors[i % colors.length],
-        accent: '#d7b77e',
-        symbol: '✦',
-        desc: b.description || '',
-        image_url: b.image_url || '',
-        stock: Number(b.stock) || 0
-      }));
-      renderBooks();
-      renderCart();
-    } else if (Array.isArray(data)) {
-      books = [];
-      renderBooks();
-      renderCart();
-    }
+    books = (data || []).map((b, i) => ({
+      id: Number(b.id),
+      title: b.title || 'بدون عنوان',
+      author: b.author || 'غير محدد',
+      category: b.category || 'روايات',
+      price: Number(b.price) || 0,
+      color: ['#642039', '#3f4c45', '#8a4b45', '#283c5a'][i % 4],
+      accent: '#d7b77e',
+      symbol: '✦',
+      desc: b.description || '',
+      image_url: b.image_url || b.cover_url || '',
+      stock: Number(b.stock) || 0
+    }));
+
+    renderBooks();
+    renderCart();
+
+    $('bookCount').textContent = `${books.length} روايات`;
+  } catch (error) {
+    console.error('خطأ تحميل الكتب:', error);
+    grid.innerHTML =
+      '<div class="empty">تعذر تحميل الكتب. راجع Console لمعرفة السبب.</div>';
+  }
+}
+
   } catch (error) {
     console.error('تعذر تحميل الكتب من Supabase:', error.message);
     $('bookGrid').insertAdjacentHTML('beforebegin', '<p class="hint" role="status">تعذر تحديث الكتب من قاعدة البيانات؛ يتم عرض النسخة الاحتياطية إن وجدت.</p>');

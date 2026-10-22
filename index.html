@@ -352,7 +352,6 @@ async function loadBooksFromSupabase(){
     const { data, error } = await supabaseClient
       .from('books')
       .select('id,title,author,description,price,image_url,category,stock,active')
-      .eq('active', true)
       .order('id', { ascending: true });
 
     if (error) throw error;

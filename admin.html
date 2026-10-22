@@ -1,280 +1,185 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>لوحة تحكم عالم الروايات</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لوحة تحكم عالم الروايات</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5eee8;
+      color: #392535;
+      margin: 0;
+      padding: 20px;
+    }
 
-<style>
-:root {
-  --wine: #681e36;
-  --wine-dark: #481326;
-  --cream: #f7f0e5;
-  --paper: #fffaf2;
-  --text: #392535;
-  --muted: #776977;
-  --border: #e6d9e1;
-  --red: #a83240;
-  --green: #326b50;
-}
+    main {
+      max-width: 950px;
+      margin: auto;
+    }
 
-* { box-sizing: border-box; }
+    section, .order {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      margin: 14px 0;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background: var(--cream);
-  color: var(--text);
-  margin: 0;
-  padding: 20px;
-}
+    input, textarea, button {
+      padding: 12px;
+      margin: 5px 0;
+      border-radius: 8px;
+      border: 1px solid #d8c5d0;
+      font: inherit;
+    }
 
-main {
-  max-width: 1000px;
-  margin: auto;
-}
+    input, textarea {
+      width: min(100%, 450px);
+      box-sizing: border-box;
+    }
 
-header {
-  background: linear-gradient(135deg, var(--wine), var(--wine-dark));
-  color: white;
-  padding: 24px;
-  border-radius: 18px;
-  margin-bottom: 20px;
-}
+    textarea {
+      display: block;
+    }
 
-header h1 { margin: 0 0 8px; }
-header p { margin: 0; opacity: .85; }
+    button {
+      cursor: pointer;
+      background: #592b50;
+      color: white;
+      border: 0;
+    }
 
-.panel {
-  background: var(--paper);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  margin: 16px 0;
-  box-shadow: 0 4px 16px #4813260b;
-}
+    button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
 
-input, textarea, button {
-  font: inherit;
-  padding: 12px;
-  border-radius: 9px;
-}
+    .reject {
+      background: #8c3434;
+    }
 
-input, textarea {
-  width: 100%;
-  border: 1px solid #d8c5d0;
-  background: white;
-  color: var(--text);
-}
+    .muted {
+      color: #776977;
+    }
 
-textarea { resize: vertical; }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-button {
-  border: 0;
-  background: var(--wine);
-  color: white;
-  cursor: pointer;
-  transition: opacity .15s;
-}
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
 
-button:hover { opacity: .88; }
-button:disabled { opacity: .5; cursor: wait; }
+    .book-card {
+      border: 1px solid #e6d9e1;
+      border-radius: 12px;
+      padding: 14px;
+      margin: 12px 0;
+    }
 
-.danger { background: var(--red); }
-.success { background: var(--green); }
-.secondary { background: #796579; }
-
-.muted { color: var(--muted); }
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.tabs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 18px 0;
-}
-
-.tab {
-  padding: 16px 10px;
-  background: #eadde3;
-  color: var(--wine-dark);
-  font-weight: bold;
-}
-
-.tab.active {
-  background: var(--wine);
-  color: white;
-}
-
-.book-card, .order-card {
-  border: 1px solid var(--border);
-  background: white;
-  border-radius: 13px;
-  padding: 16px;
-  margin: 12px 0;
-  overflow-wrap: anywhere;
-}
-
-.book-card h3, .order-card h3 { margin-top: 0; }
-
-.book-card p { line-height: 1.8; }
-
-.book-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
-
-.status {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 20px;
-  background: #eee5ed;
-  color: var(--wine);
-  font-size: 13px;
-}
-
-#login { max-width: 500px; margin: 30px auto; }
-#login input { margin: 6px 0; }
-#bookForm p { margin: 12px 0; }
-#bookForm label { display: block; margin-bottom: 8px; }
-#message, #booksMsg, #loginMsg { overflow-wrap: anywhere; }
-
-[hidden] { display: none !important; }
-
-@media (max-width: 600px) {
-  body { padding: 12px; }
-  .panel { padding: 14px; }
-  header { padding: 18px; }
-  .tabs { grid-template-columns: 1fr 1fr; }
-  .tab { font-size: 14px; }
-}
-</style>
+    .book-card h3 {
+      margin-top: 0;
+    }
+  </style>
 </head>
-
 <body>
 <main>
-  <header>
-    <h1>عالم الروايات</h1>
-    <p>لوحة التحكم الخاصة بالمتجر</p>
-  </header>
+  <h1>متجر عالم الروايات</h1>
+  <p class="muted">لوحة تحكم المسؤول</p>
 
-  <!-- تسجيل الدخول -->
-  <section id="login" class="panel">
+  <section id="login">
     <h2>تسجيل الدخول</h2>
+
     <input id="email" type="email"
       placeholder="البريد الإلكتروني"
       autocomplete="username" required>
+    <br>
 
     <input id="password" type="password"
       placeholder="كلمة المرور"
       autocomplete="current-password" required>
+    <br>
 
     <button id="loginBtn" onclick="login()">دخول</button>
-    <p id="loginMsg" role="status"></p>
+    <p id="loginMsg"></p>
   </section>
 
-  <!-- لوحة التحكم -->
   <section id="dashboard" hidden>
     <div class="row">
-      <p class="muted">مرحبا بك في إدارة المتجر</p>
-      <button class="secondary" onclick="logout()">تسجيل الخروج</button>
+      <h2>الطلبات</h2>
+      <button onclick="loadOrders()">تحديث الطلبات</button>
+      <button onclick="logout()">تسجيل الخروج</button>
     </div>
 
-    <!-- التنقل بين القسمين -->
-    <nav class="tabs" aria-label="أقسام لوحة التحكم">
-      <button id="ordersTab" class="tab active"
-        onclick="showSection('orders')">
-        الطلبات
-      </button>
+    <p id="msg"></p>
+    <div id="orders"></div>
 
-      <button id="booksTab" class="tab"
-        onclick="showSection('books')">
-        إضافة وإدارة الروايات
-      </button>
-    </nav>
+    <hr>
 
-    <!-- القسم الأول: الطلبات -->
-    <section id="ordersSection" class="panel">
-      <div class="row">
-        <h2>الطلبات</h2>
-        <button onclick="loadOrders()">تحديث الطلبات</button>
-      </div>
+    <h2>إدارة الروايات</h2>
+    <p class="muted">
+      يمكنك إضافة الروايات وتعديل معلوماتها ومخزونها.
+    </p>
 
-      <p id="message" role="status"></p>
-      <div id="ordersList"></div>
-    </section>
+    <form id="bookForm">
+      <input type="hidden" id="bookId">
 
-    <!-- القسم الثاني: الروايات -->
-    <section id="booksSection" class="panel" hidden>
-      <h2>إضافة وإدارة الروايات</h2>
-      <p class="muted">
-        أضف رواية جديدة أو عدّل معلومات رواية موجودة أو احذفها.
+      <p>
+        <input id="bookTitle" placeholder="اسم الرواية" required>
       </p>
 
-      <form id="bookForm">
-        <input type="hidden" id="bookId">
+      <p>
+        <input id="bookAuthor" placeholder="اسم الكاتب">
+      </p>
 
-        <p>
-          <input id="bookTitle" placeholder="اسم الرواية" required>
-        </p>
+      <p>
+        <input id="bookPrice" type="number" min="0"
+          step="0.01" placeholder="الثمن بالدرهم" required>
+      </p>
 
-        <p>
-          <input id="bookAuthor" placeholder="اسم الكاتب">
-        </p>
+      <p>
+        <input id="bookStock" type="number" min="0"
+          step="1" placeholder="الكمية في المخزون" required>
+      </p>
 
-        <p>
-          <input id="bookPrice" type="number" min="0"
-            step="0.01" placeholder="الثمن بالدرهم" required>
-        </p>
+      <p>
+        <input id="bookCategory" placeholder="الصنف">
+      </p>
 
-        <p>
-          <input id="bookStock" type="number" min="0"
-            step="1" placeholder="الكمية في المخزون" required>
-        </p>
+      <p>
+        <label for="bookImageFile">صورة الرواية:</label>
+      </p>
 
-        <p>
-          <input id="bookCategory" placeholder="الصنف">
-        </p>
+      <p>
+        <input id="bookImageFile" type="file" accept="image/*">
+      </p>
 
-        <p>
-          <label for="bookImageFile">صورة الرواية</label>
-          <input id="bookImageFile" type="file" accept="image/*">
-        </p>
+      <input id="bookImage" type="hidden">
 
-        <input id="bookImage" type="hidden">
+      <p>
+        <textarea id="bookDescription"
+          placeholder="ملخص الرواية" rows="4"></textarea>
+      </p>
 
-        <p>
-          <textarea id="bookDescription"
-            placeholder="ملخص الرواية" rows="4"></textarea>
-        </p>
+      <div class="row">
+        <button type="submit" id="saveBookBtn">
+          إضافة الرواية
+        </button>
 
-        <div class="row">
-          <button type="submit" id="saveBookBtn">
-            إضافة الرواية
-          </button>
+        <button type="button" onclick="resetBookForm()">
+          إلغاء التعديل
+        </button>
+      </div>
+    </form>
 
-          <button type="button" class="secondary"
-            onclick="resetBookForm()">
-            إلغاء
-          </button>
-        </div>
-      </form>
-
-      <hr>
-
-      <h2>الروايات الموجودة</h2>
-      <p id="booksMsg" role="status"></p>
-      <div id="booksList"></div>
-    </section>
+    <p id="booksMsg"></p>
+    <div id="booksList"></div>
   </section>
 </main>
 
@@ -283,24 +188,10 @@ const SUPABASE_URL =
   "https://scngjvksfjrkfouizizt.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_IObXI3QvXtqUQY_YaZHEuA_dZCs8WPK";
+  "sb_publishable_Vc3-3epAb80iIvGKNRdYag_1ug";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const el = id => document.getElementById(id);
-
-
-// التنقل بين قسمي لوحة التحكم
-function showSection(section) {
-  const showOrders = section === "orders";
-
-  el("ordersSection").hidden = !showOrders;
-  el("booksSection").hidden = showOrders;
-
-  el("ordersTab").classList.toggle("active", showOrders);
-  el("booksTab").classList.toggle("active", !showOrders);
-
-  if (!showOrders) loadBooks();
-}
 
 
 // تسجيل الدخول
@@ -323,7 +214,7 @@ async function login() {
     await checkSession();
   } catch (error) {
     el("loginMsg").textContent =
-      "وقع خطأ أثناء تسجيل الدخول.";
+      "وقع خطأ أثناء الدخول.";
   } finally {
     el("loginBtn").disabled = false;
   }
@@ -335,20 +226,20 @@ async function logout() {
   const { error } = await db.auth.signOut();
 
   if (error) {
-    el("message").textContent =
+    el("msg").textContent =
       "تعذر تسجيل الخروج: " + error.message;
     return;
   }
 
   el("dashboard").hidden = true;
   el("login").hidden = false;
-  el("password").value = "";
-  el("ordersList").replaceChildren();
+  el("orders").replaceChildren();
   el("booksList").replaceChildren();
+  el("password").value = "";
 }
 
 
-// التحقق من جلسة المسؤول
+// التحقق من الجلسة وصلاحية المسؤول
 async function checkSession() {
   const {
     data: { session },
@@ -377,14 +268,16 @@ async function checkSession() {
   el("login").hidden = true;
   el("dashboard").hidden = false;
 
-  showSection("orders");
-  await Promise.all([loadOrders(), loadBooks()]);
+  await Promise.all([
+    loadOrders(),
+    loadBooks()
+  ]);
 }
 
 
 // تحميل الطلبات
 async function loadOrders() {
-  el("message").textContent = "جارٍ تحميل الطلبات...";
+  el("msg").textContent = "جارٍ تحميل الطلبات...";
 
   const { data, error } = await db
     .from("orders")
@@ -392,33 +285,32 @@ async function loadOrders() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    el("message").textContent =
+    el("msg").textContent =
       "تعذر تحميل الطلبات: " + error.message;
     return;
   }
 
-  el("ordersList").replaceChildren();
-
-  el("message").textContent = data.length
+  el("msg").textContent = data.length
     ? `عدد الطلبات: ${data.length}`
     : "ما كاين حتى طلب دابا.";
 
+  el("orders").replaceChildren();
+
   for (const order of data) {
     const card = document.createElement("article");
-    card.className = "order-card";
+    card.className = "order";
 
     const heading = document.createElement("h3");
-    heading.textContent = "الطلب رقم: " + order.id;
+    heading.textContent = "طلب: " + order.id;
     card.appendChild(heading);
 
-    const details = document.createElement("p");
-    details.style.whiteSpace = "pre-line";
+    const details = document.createElement("pre");
 
     details.textContent =
       `الزبون: ${order.customer_name}\n` +
       `الهاتف: ${order.phone}\n` +
       `المدينة: ${order.city || "غير محددة"}\n` +
-      `العنوان: ${order.address || "غير محدد"}\n` +
+      `العنوان: ${order.address}\n` +
       `المجموع: ${order.total} درهم\n` +
       `الحالة: ${order.status}\n` +
       `التاريخ: ${new Date(order.created_at).toLocaleString("ar-MA")}`;
@@ -430,47 +322,46 @@ async function loadOrders() {
       .select("book_title,price,quantity")
       .eq("order_id", order.id);
 
-    const items = document.createElement("p");
-
     if (itemsResult.error) {
-      items.textContent =
-        "تعذر تحميل تفاصيل الكتب.";
+      const err = document.createElement("p");
+      err.textContent = "تعذر تحميل تفاصيل الكتب.";
+      card.appendChild(err);
     } else {
+      const items = document.createElement("p");
+
       items.textContent = "الكتب: " +
         itemsResult.data.map(item =>
           `${item.book_title} × ${item.quantity} (${item.price} درهم)`
         ).join("، ");
+
+      card.appendChild(items);
     }
-
-    card.appendChild(items);
-
-    const status = document.createElement("span");
-    status.className = "status";
-    status.textContent = "الحالة: " + order.status;
-    card.appendChild(status);
 
     if (order.status === "pending") {
       const actions = document.createElement("div");
       actions.className = "row";
-      actions.style.marginTop = "14px";
 
-      const accept = document.createElement("button");
-      accept.className = "success";
-      accept.textContent = "قبول الطلب";
-      accept.onclick = () =>
-        updateOrder(order.id, "accepted", accept);
+      for (const [label, status, cls] of [
+        ["قبول الطلب", "accepted", ""],
+        ["رفض الطلب", "rejected", "reject"]
+      ]) {
+        const btn = document.createElement("button");
+        btn.textContent = label;
 
-      const reject = document.createElement("button");
-      reject.className = "danger";
-      reject.textContent = "رفض الطلب";
-      reject.onclick = () =>
-        updateOrder(order.id, "rejected", reject);
+        if (cls) {
+          btn.className = cls;
+        }
 
-      actions.append(accept, reject);
+        btn.onclick = () =>
+          updateOrder(order.id, status, btn);
+
+        actions.appendChild(btn);
+      }
+
       card.appendChild(actions);
     }
 
-    el("ordersList").appendChild(card);
+    el("orders").appendChild(card);
   }
 }
 
@@ -484,7 +375,7 @@ async function updateOrder(id, status, btn) {
   if (!confirm(question)) return;
 
   btn.disabled = true;
-  el("message").textContent = "جارٍ تحديث الطلب...";
+  el("msg").textContent = "جارٍ تحديث الطلب...";
 
   try {
     const { error } = await db.rpc("admin_update_order", {
@@ -493,17 +384,20 @@ async function updateOrder(id, status, btn) {
     });
 
     if (error) {
-      el("message").textContent =
+      el("msg").textContent =
         "تعذر تحديث الطلب: " + error.message;
       return;
     }
 
-    el("message").textContent =
+    el("msg").textContent =
       "تم تحديث الطلب بنجاح.";
 
-    await Promise.all([loadOrders(), loadBooks()]);
+    await Promise.all([
+      loadOrders(),
+      loadBooks()
+    ]);
   } catch (error) {
-    el("message").textContent =
+    el("msg").textContent =
       "وقع خطأ أثناء تحديث الطلب.";
   } finally {
     btn.disabled = false;
@@ -513,7 +407,8 @@ async function updateOrder(id, status, btn) {
 
 // تحميل الروايات
 async function loadBooks() {
-  el("booksMsg").textContent = "جارٍ تحميل الروايات...";
+  el("booksMsg").textContent =
+    "جارٍ تحميل الروايات...";
 
   const { data, error } = await db
     .from("books")
@@ -540,15 +435,15 @@ async function loadBooks() {
     card.appendChild(title);
 
     const info = document.createElement("p");
+
     info.textContent =
-      `الكاتب: ${book.author || "غير محدد"}\n` +
-      `الثمن: ${book.price} درهم\n` +
-      `المخزون: ${book.stock}\n` +
+      `الكاتب: ${book.author || "غير محدد"} | ` +
+      `الثمن: ${book.price} درهم | ` +
+      `المخزون: ${book.stock} | ` +
       `التصنيف: ${book.category || "غير محدد"}`;
-    info.style.whiteSpace = "pre-line";
+
     card.appendChild(info);
 
-    // زر تعديل الرواية
     const edit = document.createElement("button");
     edit.textContent = "تعديل";
 
@@ -563,75 +458,24 @@ async function loadBooks() {
       el("bookImageFile").value = "";
       el("bookDescription").value = book.description || "";
 
-      el("saveBookBtn").textContent = "حفظ التعديلات";
+      el("saveBookBtn").textContent =
+        "حفظ التعديلات";
+
       el("booksMsg").textContent =
         "عدّل المعلومات ثم اضغط حفظ التعديلات.";
 
       el("bookForm").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
+        behavior: "smooth"
       });
     };
 
-    // زر حذف الرواية
-    const remove = document.createElement("button");
-    remove.className = "danger";
-    remove.textContent = "حذف الرواية";
-
-    remove.onclick = () => deleteBook(book, remove);
-
-    const actions = document.createElement("div");
-    actions.className = "book-actions";
-    actions.append(edit, remove);
-
-    card.appendChild(actions);
+    card.appendChild(edit);
     el("booksList").appendChild(card);
   }
 }
 
 
-// حذف الرواية بعد التأكيد
-async function deleteBook(book, btn) {
-  const confirmed = confirm(
-    `واش متأكد بغيتي تحذف الرواية "${book.title}"؟\n` +
-    "هاد العملية ما يمكنش التراجع عليها."
-  );
-
-  if (!confirmed) return;
-
-  btn.disabled = true;
-  el("booksMsg").textContent = "جارٍ حذف الرواية...";
-
-  try {
-    const { error } = await db
-      .from("books")
-      .delete()
-      .eq("id", book.id);
-
-    if (error) {
-      el("booksMsg").textContent =
-        "تعذر حذف الرواية: " + error.message;
-      return;
-    }
-
-    if (el("bookId").value === String(book.id)) {
-      resetBookForm();
-    }
-
-    el("booksMsg").textContent =
-      "تحذفات الرواية بنجاح.";
-
-    await loadBooks();
-  } catch (error) {
-    el("booksMsg").textContent =
-      "وقع خطأ أثناء حذف الرواية: " + error.message;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-
-// إفراغ نموذج الرواية
+// إفراغ النموذج
 function resetBookForm() {
   el("bookForm").reset();
   el("bookId").value = "";
@@ -670,7 +514,9 @@ el("bookForm").addEventListener("submit", async event => {
 
   const saveBtn = el("saveBookBtn");
   saveBtn.disabled = true;
-  el("booksMsg").textContent = "جارٍ حفظ الرواية...";
+
+  el("booksMsg").textContent =
+    "جارٍ حفظ الرواية...";
 
   try {
     const imageFile = el("bookImageFile").files[0];
@@ -686,7 +532,8 @@ el("bookForm").addEventListener("submit", async event => {
       }
 
       const safeName = imageFile.name.replace(
-        /[^a-zA-Z0-9._-]/g, "_"
+        /[^a-zA-Z0-9._-]/g,
+        "_"
       );
 
       const path = `${Date.now()}-${safeName}`;
@@ -710,10 +557,13 @@ el("bookForm").addEventListener("submit", async event => {
     }
 
     const result = id
-      ? await db.from("books")
+      ? await db
+          .from("books")
           .update(book)
           .eq("id", Number(id))
-      : await db.from("books").insert(book);
+      : await db
+          .from("books")
+          .insert(book);
 
     if (result.error) {
       el("booksMsg").textContent =
@@ -722,8 +572,7 @@ el("bookForm").addEventListener("submit", async event => {
     }
 
     el("booksMsg").textContent =
-      id ? "تحدّثات معلومات الرواية بنجاح."
-         : "تزادت الرواية بنجاح.";
+      "تحفظات الرواية بنجاح.";
 
     resetBookForm();
     await loadBooks();
@@ -737,7 +586,7 @@ el("bookForm").addEventListener("submit", async event => {
 });
 
 
-// متابعة حالة تسجيل الدخول
+// التحقق من الجلسة عند تغير حالة تسجيل الدخول
 db.auth.onAuthStateChange(() => {
   setTimeout(checkSession, 0);
 });

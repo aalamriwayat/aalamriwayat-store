@@ -384,12 +384,6 @@ async function loadBooksFromSupabase() {
   }
 }
 
-  } catch (error) {
-    console.error('تعذر تحميل الكتب من Supabase:', error.message);
-    $('bookGrid').insertAdjacentHTML('beforebegin', '<p class="hint" role="status">تعذر تحديث الكتب من قاعدة البيانات؛ يتم عرض النسخة الاحتياطية إن وجدت.</p>');
-  }
-}
-
 let cart={};
 let activeBook=null;
 let detailQty=1;
